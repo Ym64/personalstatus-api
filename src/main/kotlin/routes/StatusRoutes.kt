@@ -2,6 +2,8 @@ package me.m64diamondstar.routes
 
 import io.ktor.http.*
 import io.ktor.server.auth.*
+import io.ktor.server.plugins.ratelimit.RateLimitName
+import io.ktor.server.plugins.ratelimit.rateLimit
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -15,8 +17,11 @@ data class StatusRequest(
 
 fun Route.statusRoutes() {
     route("/status") {
-        get("/get") {
-            call.respond(StatusRequest(status.getStatus()))
+
+        rateLimit(RateLimitName("status")) {
+            get("/get") {
+                call.respond(StatusRequest(status.getStatus()))
+            }
         }
 
         authenticate("auth-level-999") {

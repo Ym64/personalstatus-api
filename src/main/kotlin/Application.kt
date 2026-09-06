@@ -1,12 +1,14 @@
 package me.m64diamondstar
 
-import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpMethod
+import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.plugins.cors.routing.CORS
+import io.ktor.server.plugins.*
+import io.ktor.server.plugins.cors.routing.*
+import io.ktor.server.plugins.ratelimit.*
 import me.m64diamondstar.plugins.configureAuthentication
 import me.m64diamondstar.plugins.configureRouting
 import me.m64diamondstar.status.StatusManager
+import kotlin.time.Duration.Companion.seconds
 
 val status = StatusManager()
 
@@ -19,7 +21,7 @@ fun Application.module() {
         // Allow your website
         val hosts = System.getenv("ALLOWED_HOSTS")?.split(",") ?: emptyList()
         hosts.forEach { host ->
-            allowHost(host, schemes = listOf("https"))
+            allowHost(host, schemes = listOf("http", "https"))
         }
 
         // Allow GET for the public endpoint
@@ -30,6 +32,26 @@ fun Application.module() {
         allowHeader(HttpHeaders.ContentType)
 
         allowCredentials = false
+    }
+
+    install(RateLimit) {
+        register(RateLimitName("contact")) {
+            rateLimiter(
+                limit = 1,
+                refillPeriod = 60.seconds,
+            )
+
+            requestKey { call ->
+                call.request.origin.remoteAddress
+            }
+        }
+
+        register(RateLimitName("status")) {
+            rateLimiter(
+                limit = 3,
+                refillPeriod = 5.seconds,
+            )
+        }
     }
 
     configureAuthentication()
