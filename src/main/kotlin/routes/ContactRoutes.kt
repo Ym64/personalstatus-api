@@ -14,6 +14,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
+import me.m64diamondstar.main
 
 @Serializable
 data class ContactRequest (
@@ -69,9 +70,15 @@ private suspend fun sendToWebhook(webhookUrl: String, name: String, email: Strin
                 WebhookPayload(
                     embeds = listOf(
                         Embed(
-                            title = "$name sent a message!",
-                            description = "Email: $email\nDiscord: ${discord ?: "N/A"}\nMessage: $message",
-                            color = 0x00FF00
+                            title = "_${escapeDiscordMarkdown(name)}_ sent a message!",
+                            description =
+                                "**Email**\n" +
+                                        "```${escapeDiscordMarkdown(email)}```\n\n" +
+                                        "**Discord**\n" +
+                                        "```${escapeDiscordMarkdown(discord ?: "N/A")}```\n\n" +
+                                        "**Message**\n" +
+                                        escapeDiscordMarkdown(message),
+                            color = 0xD980FF
                         )
                     )
                 )
@@ -80,4 +87,20 @@ private suspend fun sendToWebhook(webhookUrl: String, name: String, email: Strin
     } catch (e: Exception) {
         e.printStackTrace()
     }
+}
+
+fun escapeDiscordMarkdown(text: String): String {
+    return text
+        .replace("\\", "\\\\")
+        .replace("*", "\\*")
+        .replace("_", "\\_")
+        .replace("`", "\\`")
+        .replace("~", "\\~")
+        .replace("|", "\\|")
+        .replace(">", "\\>")
+        .replace("[", "\\[")
+        .replace("]", "\\]")
+        .replace("(", "\\(")
+        .replace(")", "\\)")
+        .replace("#", "\\#")
 }
