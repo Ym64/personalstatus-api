@@ -2,13 +2,13 @@ package me.m64diamondstar
 
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.plugins.*
-import io.ktor.server.plugins.bodylimit.RequestBodyLimit
+import io.ktor.server.plugins.bodylimit.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.plugins.ratelimit.*
 import me.m64diamondstar.plugins.configureAuthentication
 import me.m64diamondstar.plugins.configureRouting
 import me.m64diamondstar.status.StatusManager
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 val status = StatusManager()
@@ -42,12 +42,12 @@ fun Application.module() {
     install(RateLimit) {
         register(RateLimitName("contact")) {
             rateLimiter(
-                limit = 1,
-                refillPeriod = 60.seconds,
+                limit = 3,
+                refillPeriod = 10.minutes,
             )
 
-            requestKey { call ->
-                call.request.origin.remoteAddress
+            requestKey {
+                "global-contact"
             }
         }
 
