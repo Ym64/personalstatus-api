@@ -33,7 +33,7 @@ fun Route.contactRoutes() {
                     request.message
                 )
 
-                call.respondText("OK")
+                call.respond(HttpStatusCode.OK)
             }
         }
     }
