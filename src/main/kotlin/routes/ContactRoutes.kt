@@ -25,6 +25,14 @@ fun Route.contactRoutes() {
         rateLimit(RateLimitName("contact")) {
             post("webhook") {
                 val request = call.receive<ContactRequest>()
+
+                if (request.name.length > 64 || request.email.length > 64
+                    || (request.discord?.length ?: 0) > 64 || request.message.length > 2048
+                ) {
+                    call.respond(HttpStatusCode.BadRequest)
+                    return@post
+                }
+
                 sendToWebhook(
                     System.getenv("CONTACT_WEBHOOK_URL"),
                     request.name,

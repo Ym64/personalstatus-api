@@ -3,6 +3,7 @@ package me.m64diamondstar
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.*
+import io.ktor.server.plugins.bodylimit.RequestBodyLimit
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.plugins.ratelimit.*
 import me.m64diamondstar.plugins.configureAuthentication
@@ -32,6 +33,10 @@ fun Application.module() {
         allowHeader(HttpHeaders.ContentType)
 
         allowCredentials = false
+    }
+
+    install(RequestBodyLimit) {
+        bodyLimit { 20 * 1024 } // Allows up to 20KB per request
     }
 
     install(RateLimit) {
