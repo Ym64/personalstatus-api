@@ -36,7 +36,7 @@ fun Application.module() {
     }
 
     install(RequestBodyLimit) {
-        bodyLimit { 20 * 1024 } // Allows up to 20KB per request
+        bodyLimit { 12 * 1024 } // Allows up to 12KB per request
     }
 
     install(RateLimit) {
